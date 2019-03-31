@@ -1,0 +1,10 @@
+{
+	apps : [
+		{
+			"name": "dungeon-oratoria",
+			"script": "./index.js",
+			"watch": false,
+			detached: true,
+		}
+	]	
+}
