@@ -1,5 +1,5 @@
 const { prefix } = require('../config.json');
-const { findDevelopmentByName, getDevelopmentOwnerId, getDevelopmentOptions } = require('../methods/skills.js');
+const { findDevelopmentByName, getDevelopmentOptions } = require('../methods/skills.js');
 const { getAdventurerById } = require('../methods/adventurers.js');
 
 module.exports = {
@@ -7,9 +7,9 @@ module.exports = {
 	description: 'Searches for all adventurer development abilities matching given data',
 	aliases: ['development'],
 	args: true,
-	usage: '<one or more attribute(s)>',
-	example: `\`${prefix}development light_magic_attack\` Will send a list of all adventurer skills that does light magic damage.\n` +
-	`\`${prefix}combat sleepres -magic\` Will send a list of all adventurer skills that gives either sleep resist or debuffs magic.`,
+	usage: '<name_of_development>',
+	example: `\`${prefix}development options\` Will PM a list of all the possible developments to you.\n` +
+	`\`${prefix}development hunter\` Will send a list of all adventurer developments that are called hunter.`,
 	execute(message, args) {
 		const arraySearch = [];
 
@@ -18,7 +18,13 @@ module.exports = {
 		}
 
 		if(arraySearch[0] === "options") {
-			console.log(getDevelopmentOptions());
+			return message.author.send(getDevelopmentOptions(), { split: true })
+				.then(() => {
+					if (message.channel.type !== 'dm') {
+						message.channel.send(`Options requested! I've sent you a DM! ${message.author}!`);
+					}
+				})
+				.catch(() => message.reply('it seems like I can\'t DM you!'));
 		}
 
 		let resultVal = findDevelopmentByName(arraySearch[0]);
@@ -31,16 +37,14 @@ module.exports = {
 			if(developmentSets.has(resultVal[i].name))
 				developmentSets.get(resultVal[i].name).push(resultVal[i]);
 			else
-				developmentSets.set(resultVal[i].name, []);
+				developmentSets.set(resultVal[i].name, [resultVal[i]]);
 		}
-
-		console.log(developmentSets);
 
 		let msgResult = '';
 		developmentSets.forEach(function (value, key, map) {
 			msgResult += `**${key} (`;
 			for(let i = 0 ; i < value[0].effects.length ; i++) {
-				msgResult += `${value[0].effects[i].attribute}: ${value[0].effects[i].modifier}`;
+				msgResult += `${uppercaseFirstLetter(value[0].effects[i].attribute)}: ${value[0].effects[i].modifier}`;
 				if(i + 1 !== value[0].effects.length)
 					msgResult += `, `;
 			}
@@ -52,18 +56,8 @@ module.exports = {
 			});
 			msgResult += '\n';
 		});
+		msgResult.trimEnd('\n');
 
-		console.log("The Message:");
-		console.log(msgResult);
-//			msgResult += `**[${adventurers[assistKeys[i]].title}] ${adventurers[assistKeys[i]].name}**\n`;
-//			for (let x = 0; x < adventurers[assistKeys[i]].skills.length; x++) {
-//				msgResult += `${adventurers[assistKeys[i]].skills[x].name}: ${combatSkillToEmbed(adventurers[assistKeys[i]].skills[x], ' ')}`;
-//
-//				if (x < adventurers[assistKeys[i]].skills.length) {
-//					msgResult += `\n`;
-//				}
-//			}
-//		}
 
 		if (msgResult.length >= 1500) {
 			return message.author.send(msgResult, { split: true })
@@ -80,3 +74,7 @@ module.exports = {
 		
 	},
 };
+
+function uppercaseFirstLetter(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+}

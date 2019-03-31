@@ -200,33 +200,25 @@ const functions = {
 	},
 
 	getDevelopmentOptions: function() {
-		return adventurers_develop.list.keys();
+		returnStr = '**Development Name - Number of Adventuers with Development:**\n';
+		Array.from(adventurers_develop.list.keys()).forEach(function(item) {
+			returnStr += `${item} - ${adventurers_develop.list.get(item).length}\n`;
+		})
+		returnStr.trimEnd('\n');
+		return returnStr;
 	},
 
 	findDevelopmentByName: function (effects) {
-		console.log(`Find: ${effects}`);
-		console.log(adventurers_develop.list.get(effects));
+//		console.log(`Find: ${effects}`);
+//		console.log(adventurers_develop.list.get(effects));
 		let returnVal = adventurers_develop.list.get(effects);
-//		let returnVal = [];
-//
-//		returnVal = adventurers_develop.list.filterArray(function  (develop) {
-//			if(develop.id.indexOf(effects) !== -1) {
-//				return true;
-//			}
-//			else
-//				return false;
-//		});
-//
+
 		if (returnVal === undefined) {
 			return -1;
 		}
-//
+
 		return returnVal;
 	},
-
-	getDevelopmentOwnerId: function(developmentObj) {
-		return adventurers_develop.toCharMap.get(developmentObj.id);
-	}
 
 	/*getReadableSkillEffects: function (skill) {
 		let resultString = '';
@@ -257,8 +249,7 @@ const skills = {
 };
 
 const adventurers_develop = {
-	list: new Discord.Collection(),
-	toCharMap: new Discord.Collection()
+	list: new Discord.Collection()
 };
 
 const skillIdToCharIdMap = {
@@ -327,11 +318,9 @@ function setAdventurerDevelopmentAbility(developmentObj, adventurerId) {
 
 	if(!adventurers_develop.list.get(developId)) {
 		adventurers_develop.list.set(developId, []);
-		adventurers_develop.toCharMap.set(developId, []);
 	}
 
 	adventurers_develop.list.get(developId).push(developmentObj);
-	adventurers_develop.toCharMap.get(developId).push(adventurerId);
 }
 
 for (let count = 0; count < adventurersArray.length; count++) {
@@ -349,11 +338,3 @@ for (let count = 0; count < adventurersArray.length; count++) {
 		setAdventurerDevelopmentAbility(adventurersArray[count].skills.development[x], adventurersArray[count].id);
 	}
 }
-
-Array.from(adventurers_develop.list.keys()).forEach(function(item) {
-	console.log(`${item} - ${adventurers_develop.list.get(item).length}`);
-})
-
-console.log(adventurers_develop.list.first());
-
-//console.log(adventurers_develop.list.keys(), adventurers_develop.list.values().length);
