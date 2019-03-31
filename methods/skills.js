@@ -197,6 +197,35 @@ const functions = {
 		}
 
 		return resultString;
+	},
+
+	getDevelopmentOptions: function() {
+		return adventurers_develop.list.keys();
+	},
+
+	findDevelopmentByName: function (effects) {
+		console.log(`Find: ${effects}`);
+		console.log(adventurers_develop.list.get(effects));
+		let returnVal = adventurers_develop.list.get(effects);
+//		let returnVal = [];
+//
+//		returnVal = adventurers_develop.list.filterArray(function  (develop) {
+//			if(develop.id.indexOf(effects) !== -1) {
+//				return true;
+//			}
+//			else
+//				return false;
+//		});
+//
+		if (returnVal === undefined) {
+			return -1;
+		}
+//
+		return returnVal;
+	},
+
+	getDevelopmentOwnerId: function(developmentObj) {
+		return adventurers_develop.toCharMap.get(developmentObj.id);
 	}
 
 	/*getReadableSkillEffects: function (skill) {
@@ -225,6 +254,11 @@ const { fromHumanInput, toHumanReadable, organizeTermsWithSpaces } = require('./
 const skills = {
 	assists: new Discord.Collection(),
 	adventurers: new Discord.Collection()
+};
+
+const adventurers_develop = {
+	list: new Discord.Collection(),
+	toCharMap: new Discord.Collection()
 };
 
 const skillIdToCharIdMap = {
@@ -280,6 +314,26 @@ function setAdventurerSkillAndAdd(skillObj, adventurerId) {
 	skillIdToCharIdMap.adventurers.set(skillId, adventurerId);
 }
 
+function setAdventurerDevelopmentAbility(developmentObj, adventurerId) {
+	if (developmentObj.name.indexOf(' Placeholder') !== -1) {
+		return;
+	}
+	//for(let count = 0 ; count < developmentObj.effects.length ; count++) {
+	//let developId = `${adventurerId}_${developmentObj.name.toLowerCase().replace(/\s+/g, '_').replace(/'/g, '').replace(/:.+/g, '')}`;
+	let developId = `${developmentObj.name.toLowerCase().replace(/\s+/g, '_').replace(/'/g, '').replace(/:.+/g, '')}`;
+
+	developmentObj.id = developId;
+	developmentObj.advId = adventurerId;
+
+	if(!adventurers_develop.list.get(developId)) {
+		adventurers_develop.list.set(developId, []);
+		adventurers_develop.toCharMap.set(developId, []);
+	}
+
+	adventurers_develop.list.get(developId).push(developmentObj);
+	adventurers_develop.toCharMap.get(developId).push(adventurerId);
+}
+
 for (let count = 0; count < adventurersArray.length; count++) {
 	//console.log(adventurersArray[count].id);
 	setAdventurerSkillAndAdd(adventurersArray[count].skills.special, adventurersArray[count].id);
@@ -287,4 +341,19 @@ for (let count = 0; count < adventurersArray.length; count++) {
 	for (let x = 0; x < adventurersArray[count].skills.combat.length; x++) {
 		setAdventurerSkillAndAdd(adventurersArray[count].skills.combat[x], adventurersArray[count].id);
 	}
+
+	for (let x = 0; x < adventurersArray[count].skills.development.length; x++) {
+		if(count === 0 && x === 0) {
+			console.log(adventurersArray[count].skills.development[x]);
+		}
+		setAdventurerDevelopmentAbility(adventurersArray[count].skills.development[x], adventurersArray[count].id);
+	}
 }
+
+Array.from(adventurers_develop.list.keys()).forEach(function(item) {
+	console.log(`${item} - ${adventurers_develop.list.get(item).length}`);
+})
+
+console.log(adventurers_develop.list.first());
+
+//console.log(adventurers_develop.list.keys(), adventurers_develop.list.values().length);
