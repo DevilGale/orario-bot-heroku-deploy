@@ -4,6 +4,8 @@
 			"name": "dungeon-oratoria",
 			"script": "./index.js",
 			"watch": false,
+			"error_file": "err.log",
+			"out_file": "out.log",
 			detached: true,
 		}
 	]	
