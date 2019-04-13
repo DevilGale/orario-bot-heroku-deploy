@@ -1,5 +1,5 @@
 const { prefix } = require('../config.json');
-const { findDevelopmentByName, getDevelopmentOptions } = require('../methods/skills.js');
+const { findDevelopmentByName, getDevelopmentOptions, getDevelopmentCloseNames } = require('../methods/skills.js');
 const { getAdventurerById } = require('../methods/adventurers.js');
 
 module.exports = {
@@ -29,7 +29,22 @@ module.exports = {
 
 		let resultVal = findDevelopmentByName(arraySearch[0]);
 		if (resultVal === -1) {
-			return message.channel.send(`No results found, ${message.author}!`);
+			let msgClose = getDevelopmentCloseNames(arraySearch);
+			if(msgClose === '')
+				return message.channel.send(`No results found, ${message.author}!`);
+			else {
+				let msg = `No results found, ${message.author}!\n\n${msgClose}`;
+				if(msg.length > 1500)
+					return message.author.send(msg, { split: true })
+						.then(() => {
+							if (message.channel.type !== 'dm') {
+								message.channel.send(`Too many results found, I've sent you a DM! ${message.author}!`);
+						}
+					})
+					.catch(() => message.reply('it seems like I can\'t DM you!'));
+				else
+					message.channel.send(msg);
+			}
 		}
 
 		let developmentSets = new Map();

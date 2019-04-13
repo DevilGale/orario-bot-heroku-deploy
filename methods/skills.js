@@ -220,6 +220,22 @@ const functions = {
 		return returnVal;
 	},
 
+	getDevelopmentCloseNames: function(searchWords) {
+		let searchedSet = '';
+		for(let i = 0 ; i < searchWords.length ; i++) {
+			let similarNames = Array.from(adventurers_develop.list.keys()).filter(function(development_name) {
+				return RegExp(searchWords[i], 'gi').test(development_name);
+			});
+			if(similarNames.length !== 0) {
+				searchedSet += `**${searchWords[i]}** not found, did you mean:\n`;
+				searchedSet += similarNames.join("\n") + '\n\n';
+			}
+		}
+		searchedSet.trimEnd('\n');
+
+		return searchedSet;
+	}
+
 	/*getReadableSkillEffects: function (skill) {
 		let resultString = '';
 
